@@ -213,9 +213,9 @@ export default function Home() {
                   <a href="https://www.tiktok.com/@atibvorarlberg.eg" target="_blank" rel="noreferrer">
                     <Music2 size={21} /><span><small>TikTok</small>@atibvorarlberg.eg</span><ArrowUpRight size={20} />
                   </a>
-                  <div className="contact-channel">
-                    <Facebook size={21} /><span><small>Facebook</small>{copy.contact.facebookName}</span>
-                  </div>
+                  <a href="https://www.facebook.com/people/ATIB-Vorarlberg-Jugend/100090740157705/" target="_blank" rel="noreferrer">
+                    <Facebook size={21} /><span><small>Facebook</small>{copy.contact.facebookName}</span><ArrowUpRight size={20} />
+                  </a>
                 </div>
               </div>
               <ContactForm key={language} />
