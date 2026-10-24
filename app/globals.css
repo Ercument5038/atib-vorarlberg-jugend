@@ -1102,6 +1102,13 @@ section[id] {
   height: 45px;
 }
 
+/* Chrome malt native Selects trotz transparentem Hintergrund weiß;
+   explizite Theme-Farben verhindern das. */
+.contact-form select {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
 .contact-form textarea {
   min-height: 120px;
   padding: 12px 0;
