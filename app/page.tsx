@@ -95,7 +95,7 @@ export default function Home() {
             <div className="foreword-grid">
               <Reveal className="foreword-portrait">
                 <div className="portrait-frame">
-                  <Image src="/images/yusuf-kaplan.jpg" alt={copy.foreword.portraitAlt} fill sizes="(max-width: 800px) 90vw, 34vw" />
+                  <Image src="/images/team/yusuf-kaplan.jpg" alt={copy.foreword.portraitAlt} fill sizes="(max-width: 800px) 90vw, 34vw" />
                 </div>
                 <div className="portrait-caption"><strong>Yusuf Kaplan</strong><span>{copy.foreword.role}</span></div>
               </Reveal>
