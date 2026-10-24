@@ -20,6 +20,9 @@ type Relief = {
   snapXY?: string;
 };
 
+// Straßen in Kartenkoordinaten: c = Klasse (1 Autobahn, 2 Hauptstraße, 3 sonstige), p = x,y,x,y,…
+type Roads = { roads: { c: number; p: number[] }[] };
+
 type MapApi = {
   focus: (mosque: Mosque) => void;
   reset: () => void;
@@ -106,6 +109,10 @@ function MosqueMap({
       let THREE: typeof ThreeTypes;
       let OrbitControls: typeof import("three/addons/controls/OrbitControls.js").OrbitControls;
       let relief: Relief;
+      // Straßen sind nur Zierde: fehlen sie, bleibt die Karte ohne
+      const roadsRequest: Promise<Roads | null> = fetch("/data/vorarlberg-strassen.json")
+        .then((res) => (res.ok ? res.json() : null))
+        .catch(() => null);
       try {
         const [three, controlsModule, response] = await Promise.all([
           import("three"),
@@ -251,6 +258,45 @@ function MosqueMap({
       terrainGeometry.setIndex(index);
       terrainGeometry.computeVertexNormals();
       const terrainMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0 });
+
+      // Straßen als dezente Textur: helle Linien über emissiveMap, damit sie auf jeder Geländefarbe aufhellen
+      const uv = new Float32Array(N * 2);
+      for (let i = 0; i < N; i++) {
+        uv[i * 2] = (pos[i * 3] + CX) / W;
+        uv[i * 2 + 1] = 1 - (pos[i * 3 + 2] + CY) / H;
+      }
+      terrainGeometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+      let roadTexture: ThreeTypes.CanvasTexture | null = null;
+      roadsRequest.then((data) => {
+        if (disposed || !data?.roads?.length) return;
+        const TEX = 3; // Pixel pro Karteneinheit
+        const roadCanvas = document.createElement("canvas");
+        roadCanvas.width = Math.round(W * TEX);
+        roadCanvas.height = Math.round(H * TEX);
+        const g = roadCanvas.getContext("2d");
+        if (!g) return;
+        g.fillStyle = "#000";
+        g.fillRect(0, 0, roadCanvas.width, roadCanvas.height);
+        g.lineJoin = "round";
+        g.lineCap = "round";
+        const styles: Record<number, [number, string]> = { 1: [2.4, "#fff"], 2: [1.7, "#bbb"], 3: [1.2, "#888"] };
+        for (const cls of [3, 2, 1]) {
+          const [width, color] = styles[cls];
+          g.lineWidth = width;
+          g.strokeStyle = color;
+          g.beginPath();
+          for (const road of data.roads) {
+            if (road.c !== cls) continue;
+            g.moveTo(road.p[0] * TEX, road.p[1] * TEX);
+            for (let k = 2; k < road.p.length; k += 2) g.lineTo(road.p[k] * TEX, road.p[k + 1] * TEX);
+          }
+          g.stroke();
+        }
+        roadTexture = new THREE.CanvasTexture(roadCanvas);
+        roadTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        terrainMaterial.emissiveMap = roadTexture;
+        terrainMaterial.needsUpdate = true;
+      });
       const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
       terrain.castShadow = true;
       terrain.receiveShadow = true;
@@ -331,6 +377,7 @@ function MosqueMap({
         }
         colorAttribute.needsUpdate = true;
         wallMaterial.color.set(cssVar("--mosque-deep"));
+        terrainMaterial.emissive.set(cssVar("--mosque-road"));
         poleMaterial.color.set(cssVar("--mosque-edge"));
         drawMosqueIcon(iconCanvas);
         iconTexture.needsUpdate = true;
@@ -623,6 +670,7 @@ function MosqueMap({
           material?.dispose?.();
         });
         iconTexture.dispose();
+        roadTexture?.dispose();
         renderer.dispose();
         canvas.remove();
         api.current = null;
