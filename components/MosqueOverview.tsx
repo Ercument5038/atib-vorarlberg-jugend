@@ -295,6 +295,7 @@ function MosqueMap({
         roadTexture = new THREE.CanvasTexture(roadCanvas);
         roadTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
         terrainMaterial.emissiveMap = roadTexture;
+        terrainMaterial.emissive.set(cssVar("--mosque-road"));
         terrainMaterial.needsUpdate = true;
       });
       const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
@@ -377,7 +378,8 @@ function MosqueMap({
         }
         colorAttribute.needsUpdate = true;
         wallMaterial.color.set(cssVar("--mosque-deep"));
-        terrainMaterial.emissive.set(cssVar("--mosque-road"));
+        // Ohne Straßentextur würde die Emission das ganze Gelände aufhellen
+        terrainMaterial.emissive.set(roadTexture ? cssVar("--mosque-road") : "#000000");
         poleMaterial.color.set(cssVar("--mosque-edge"));
         drawMosqueIcon(iconCanvas);
         iconTexture.needsUpdate = true;
