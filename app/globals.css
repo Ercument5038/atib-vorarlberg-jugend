@@ -2060,6 +2060,7 @@ body {
   --mosque-halo: #f6f5f0;
   --mosque-tint: rgba(27, 151, 171, 0.1);
   --mosque-shadow: rgba(15, 107, 122, 0.28);
+  --mosque-road: #86aab0;
 }
 
 :root[data-theme="dark"] {
@@ -2071,6 +2072,7 @@ body {
   --mosque-halo: #0d2025;
   --mosque-tint: rgba(53, 169, 188, 0.14);
   --mosque-shadow: rgba(0, 0, 0, 0.5);
+  --mosque-road: #6c9ea6;
 }
 
 .sr-only {

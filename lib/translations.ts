@@ -56,7 +56,7 @@ export const translations = {
       route: "Route in Google Maps",
       newTab: "(öffnet in neuem Tab)",
       country: "Österreich",
-      sources: "Karte: Statistik Austria, swisstopo · Adressen: Islam-Landkarte",
+      sources: "Karte: Statistik Austria, swisstopo · Straßen: © OpenStreetMap-Mitwirkende · Adressen: Islam-Landkarte",
     },
     hero: {
       eyebrow: "ATIB Jugend Vorarlberg · 2026",
@@ -204,7 +204,7 @@ export const translations = {
       route: "Google Maps’te yol tarifi",
       newTab: "(yeni sekmede açılır)",
       country: "Avusturya",
-      sources: "Harita: Statistik Austria, swisstopo · Adresler: Islam-Landkarte",
+      sources: "Harita: Statistik Austria, swisstopo · Yollar: © OpenStreetMap katkıda bulunanlar · Adresler: Islam-Landkarte",
     },
     hero: {
       eyebrow: "ATİB Gençlik Vorarlberg · 2026",
