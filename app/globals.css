@@ -163,7 +163,7 @@ section[id] {
 
 .button-primary {
   background: var(--primary);
-  color: var(--white);
+  color: #08252b;
 }
 
 .button-primary:hover {
@@ -1303,7 +1303,10 @@ section[id] {
     visibility: hidden;
     flex-direction: column;
     justify-content: space-between;
+    gap: 32px;
     padding: 35px 22px 30px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--paper);
     opacity: 0;
     transform: translateY(-10px);
@@ -2346,7 +2349,7 @@ body {
 }
 
 .mosque-pop dt {
-  color: var(--primary);
+  color: var(--primary-dark);
   font-size: 1rem;
   font-weight: 650;
 }

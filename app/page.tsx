@@ -52,7 +52,7 @@ export default function Home() {
             </div>
             <div className="hero-visual">
               <div className="hero-image-wrap">
-                <Image src="/images/hero.jpg" alt={copy.hero.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 54vw" />
+                <Image src="/images/hero.jpg" alt={copy.hero.imageAlt} fill sizes="(max-width: 900px) 100vw, 54vw" />
               </div>
               <div className="hero-image-label">
                 <span>{copy.hero.imageLabel1}</span>

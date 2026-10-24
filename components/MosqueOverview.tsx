@@ -528,7 +528,18 @@ function MosqueMap({
       };
       const tipPoint = new THREE.Vector3();
       let raf = 0;
+      let visible = true;
+      const visibilityObserver = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && !raf) raf = requestAnimationFrame(tick);
+        if (!visible && raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      }, { rootMargin: "100px" });
       const tick = (now: number) => {
+        raf = 0;
+        if (!visible) return;
         const t = reduce ? 99 : (now - start) / 1000;
         // Land wächst aus dem Boden, Kamera schwenkt ein
         land.scale.y = 0.02 + 0.98 * ease(t / 1.2);
@@ -594,11 +605,13 @@ function MosqueMap({
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
+      visibilityObserver.observe(el);
       setStatus("ready");
 
       cleanup = () => {
         window.clearTimeout(hintTimer);
         cancelAnimationFrame(raf);
+        visibilityObserver.disconnect();
         resizeObserver.disconnect();
         window.removeEventListener("pointerup", onWindowUp);
         el.removeEventListener("touchmove", onTouchMove);
@@ -629,8 +642,8 @@ function MosqueMap({
   }, [theme, status]);
 
   useEffect(() => {
-    if (focus) api.current?.focus(focus.mosque);
-  }, [focus]);
+    if (focus && status === "ready") api.current?.focus(focus.mosque);
+  }, [focus, status]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const map = api.current;
@@ -771,7 +784,8 @@ export function MosqueOverview() {
     setSelected(mosque);
     if (mosque) setFocus({ mosque, at: Date.now() });
     else {
-      returnFocus.current?.focus({ preventScroll: true });
+      const target = returnFocus.current ?? stageRef.current?.querySelector<HTMLButtonElement>(".mosque-gl");
+      target?.focus({ preventScroll: true });
       returnFocus.current = null;
     }
   }, []);
