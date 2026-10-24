@@ -32,11 +32,11 @@ export const MAP_SIZE = { width: 640, height: 984.7 };
 
 export const mosques: Mosque[] = [
   { id: "hoerbranz", town: "Hörbranz", address: "Lochauer Straße 2", postalCode: "6912", district: "bregenz", x: 201.5, y: 76.9, openingHours: daily("10:00–23:00") },
-  { id: "bregenz", town: "Bregenz", address: "Vorklostergasse 58", postalCode: "6900", district: "bregenz", x: 194.0, y: 141.5, openingHours: lateWeekend("06:00"), phone: "05574 43013", website: "https://atibbregenz.at" },
-  { id: "hard", town: "Hard", address: "Eschlestraße 16", postalCode: "6971", district: "bregenz", x: 165.0, y: 157.0, openingHours: ALWAYS_OPEN },
+  { id: "bregenz", town: "Bregenz", address: "Vorklostergasse 58", postalCode: "6900", district: "bregenz", x: 194.0, y: 141.5, image: "/images/moscheen/bregenz.webp", openingHours: lateWeekend("06:00"), phone: "05574 43013", website: "https://atibbregenz.at" },
+  { id: "hard", town: "Hard", address: "Eschlestraße 16", postalCode: "6971", district: "bregenz", x: 165.0, y: 157.0, image: "/images/moscheen/hard.webp", openingHours: ALWAYS_OPEN },
   { id: "hoechst", town: "Höchst", address: "Landstraße 64", postalCode: "6973", district: "bregenz", x: 105.7, y: 186.7, openingHours: ALWAYS_OPEN },
   { id: "reuthe", town: "Reuthe", address: "Reuthe 60a", postalCode: "6870", district: "bregenz", x: 330.2, y: 301.6, openingHours: ALWAYS_OPEN },
-  { id: "dornbirn", town: "Dornbirn", address: "Quellengasse 4", postalCode: "6850", district: "dornbirn", x: 203.0, y: 240.7, openingHours: daily("05:00–23:00") },
+  { id: "dornbirn", town: "Dornbirn", address: "Quellengasse 4", postalCode: "6850", district: "dornbirn", x: 203.0, y: 240.7, image: "/images/moscheen/dornbirn.webp", openingHours: daily("05:00–23:00") },
   { id: "lustenau", town: "Lustenau", address: "Tavernhofstraße 17a", postalCode: "6890", district: "dornbirn", x: 126.5, y: 236.2, openingHours: daily("06:00–22:00"), phone: "05577 86780", website: "https://kum.atiblustenau.at" },
   { id: "hohenems", town: "Hohenems", address: "Robert-Koch-Straße 18a", postalCode: "6845", district: "dornbirn", x: 143.8, y: 310.0, openingHours: daily("05:00–23:00"), phone: "05576 74978", website: "https://atib-hohenems.com" },
   { id: "rankweil", town: "Rankweil", address: "Schweizer Straße 111", postalCode: "6830", district: "feldkirch", x: 74.1, y: 409.9, openingHours: ALWAYS_OPEN },
