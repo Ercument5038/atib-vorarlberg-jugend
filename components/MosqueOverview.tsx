@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, ArrowUp, ArrowUpRight, Minus, Plus, RotateCcw, X } from "lucide-react";
+import { ArrowDown, ArrowUpRight, MapPin, Minus, Plus, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as ThreeTypes from "three";
 import { useSiteSettings } from "@/components/SiteSettings";
@@ -817,55 +817,58 @@ export function MosqueOverview() {
         </div>
       </div>
 
-      <div className="container" ref={stageRef}>
-        <MosqueMap copy={copy} name={name} active={active} setActive={setActive} selected={selected} onSelect={select} focus={focus} />
-        <div className="mosque-map-footer">
-          <p className="mosque-controls mosque-controls-pointer">{copy.controls}</p>
-          <p className="mosque-controls mosque-controls-touch">{copy.controlsTouch}</p>
-          <a className="text-link" href="#moscheen-liste">{copy.listAction} <ArrowDown size={18} aria-hidden="true" /></a>
+      <div className="container mosque-layout">
+        <div className="mosque-map-col" ref={stageRef}>
+          <MosqueMap copy={copy} name={name} active={active} setActive={setActive} selected={selected} onSelect={select} focus={focus} />
+          <div className="mosque-map-footer">
+            <p className="mosque-controls mosque-controls-pointer">{copy.controls}</p>
+            <p className="mosque-controls mosque-controls-touch">{copy.controlsTouch}</p>
+            <a className="text-link mosque-list-link" href="#moscheen-liste">{copy.listAction} <ArrowDown size={18} aria-hidden="true" /></a>
+          </div>
+        </div>
+
+        <div className="mosque-list-wrap" id="moscheen-liste">
+          <div className="mosque-list-head">
+            <h3>{copy.listTitle}</h3>
+            <p>{copy.listIntro}</p>
+          </div>
+          <div className="mosque-list">
+            {districts.map((district) => {
+              const items = mosques.filter((m) => m.district === district);
+              return (
+                <div className="mosque-group" key={district}>
+                  <h4><span>{copy.districts[district]}</span><span>{items.length}</span></h4>
+                  <ul>
+                    {items.map((mosque) => (
+                      <li key={mosque.id}>
+                        <button
+                          type="button"
+                          className={active === mosque.id || selected?.id === mosque.id ? "is-active" : ""}
+                          aria-pressed={selected?.id === mosque.id}
+                          onMouseEnter={() => setActive(mosque.id)}
+                          onMouseLeave={() => setActive(null)}
+                          onFocus={() => setActive(mosque.id)}
+                          onBlur={() => setActive(null)}
+                          onClick={(e) => showOnMap(mosque, e.currentTarget)}
+                        >
+                          <span className="mosque-emoji" aria-hidden="true">{"\u{1F54C}"}</span>
+                          <span>
+                            <span className="mosque-name">{name(mosque)}</span>
+                            <span className="mosque-address">{mosque.address}, {mosque.postalCode} {mosque.town}</span>
+                          </span>
+                          <MapPin className="mosque-go" size={18} aria-hidden="true" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <div className="container mosque-list-wrap" id="moscheen-liste">
-        <div className="mosque-list-head">
-          <h3>{copy.listTitle}</h3>
-          <p>{copy.listIntro}</p>
-        </div>
-        <div className="mosque-list">
-          {districts.map((district) => {
-            const items = mosques.filter((m) => m.district === district);
-            return (
-              <div className="mosque-group" key={district}>
-                <h4><span>{copy.districts[district]}</span><span>{items.length}</span></h4>
-                <ul>
-                  {items.map((mosque) => (
-                    <li key={mosque.id}>
-                      <button
-                        type="button"
-                        className={active === mosque.id || selected?.id === mosque.id ? "is-active" : ""}
-                        aria-pressed={selected?.id === mosque.id}
-                        onMouseEnter={() => setActive(mosque.id)}
-                        onMouseLeave={() => setActive(null)}
-                        onFocus={() => setActive(mosque.id)}
-                        onBlur={() => setActive(null)}
-                        onClick={(e) => showOnMap(mosque, e.currentTarget)}
-                      >
-                        <span className="mosque-emoji" aria-hidden="true">{"\u{1F54C}"}</span>
-                        <span>
-                          <span className="mosque-name">{name(mosque)}</span>
-                          <span className="mosque-address">{mosque.address}, {mosque.postalCode} {mosque.town}</span>
-                        </span>
-                        <ArrowUp className="mosque-go" size={18} aria-hidden="true" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-        <p className="mosque-sources">{copy.sources}</p>
-      </div>
+      <p className="container mosque-sources">{copy.sources}</p>
     </section>
   );
 }
