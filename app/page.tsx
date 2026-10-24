@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { Header } from "@/components/Header";
+import { MosqueOverview } from "@/components/MosqueOverview";
 import { Reveal } from "@/components/Reveal";
 import { useSiteSettings } from "@/components/SiteSettings";
 import { activities, team } from "@/lib/content";
@@ -26,6 +27,8 @@ export default function Home() {
     <>
       <Header />
       <main id="top">
+        <MosqueOverview />
+
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-grid container">
             <div className="hero-copy">
