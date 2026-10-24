@@ -754,6 +754,17 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
               <dd><a href={`tel:${mosque.phone.replace(/\s/g, "")}`}>{mosque.phone}</a></dd>
             </div>
           )}
+          {mosque.website && (
+            <div>
+              <dt>{copy.website}</dt>
+              <dd>
+                <a href={mosque.website} target="_blank" rel="noreferrer">
+                  {mosque.website.replace(/^https?:\/\//, "")}
+                  <span className="sr-only"> {copy.newTab}</span>
+                </a>
+              </dd>
+            </div>
+          )}
         </dl>
         <a
           className="button button-primary mosque-route"
