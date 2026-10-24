@@ -2572,3 +2572,51 @@ body {
     padding: 8px 10px;
   }
 }
+
+/* Moschee-Liste rechts neben der Karte (ab breiten Bildschirmen), sonst darunter */
+.mosque-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1101px) {
+  .mosque-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+    align-items: start;
+    gap: 28px;
+  }
+
+  .mosque-list-wrap {
+    height: calc(min(72svh, 720px) + 2px);
+    min-height: 462px;
+    margin-top: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 8px;
+    scrollbar-color: var(--line) transparent;
+    scrollbar-width: thin;
+  }
+
+  .mosque-list-head {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .mosque-list-head h3 {
+    font-size: 1.9rem;
+  }
+
+  .mosque-list {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .mosque-list-link {
+    display: none;
+  }
+}
