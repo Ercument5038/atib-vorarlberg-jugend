@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Check, Clock, Copy as CopyIcon, Globe, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Check, Clock, Copy as CopyIcon, Globe, Mail, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type * as ThreeTypes from "three";
 import { useSiteSettings } from "@/components/SiteSettings";
@@ -828,7 +828,7 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
   const [copied, setCopied] = useState(false);
   const hours = mosque.openingHours?.[language];
   const fullAddress = `${mosque.address}, ${mosque.postalCode} ${mosque.town}`;
-  const hasContact = Boolean(mosque.phone || mosque.website);
+  const hasContact = Boolean(mosque.phone || mosque.email || mosque.website);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -899,6 +899,13 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
                   <a href={telHref(mosque.phone)}>
                     <span className="sr-only">{copy.phone}: </span>
                     {mosque.phone}
+                  </a>
+                )}
+                {mosque.email && (
+                  <a href={`mailto:${mosque.email}`}>
+                    <Mail size={16} aria-hidden="true" />
+                    <span className="sr-only">{copy.email}: </span>
+                    {mosque.email}
                   </a>
                 )}
                 {mosque.website && (
