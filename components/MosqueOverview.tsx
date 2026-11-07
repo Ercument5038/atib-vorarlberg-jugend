@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Check, ChevronDown, Clock, Copy as CopyIcon, Globe, Mail, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Check, ChevronDown, Clock, Copy as CopyIcon, Globe, Mail, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, UserRound, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type * as ThreeTypes from "three";
 import { useSiteSettings } from "@/components/SiteSettings";
@@ -942,6 +942,12 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
             <dt><Clock size={18} aria-hidden="true" />{copy.openingHours}</dt>
             <dd className={hours ? undefined : "is-empty"}>{hours ?? copy.pending}</dd>
           </div>
+          {mosque.contactPerson && (
+            <div>
+              <dt><UserRound size={18} aria-hidden="true" />{copy.contactPerson}</dt>
+              <dd>{mosque.contactPerson}</dd>
+            </div>
+          )}
           <div>
             <dt><Phone size={18} aria-hidden="true" />{copy.contact}</dt>
             {hasContact ? (
