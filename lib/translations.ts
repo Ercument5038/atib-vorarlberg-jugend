@@ -56,6 +56,7 @@ export const translations = {
       phone: "Telefon",
       website: "Website",
       email: "E-Mail",
+      contactPerson: "Ansprechpartner",
       contact: "Kontakt",
       contactPending: "Noch keine Kontaktdaten. Schreib uns gern über das Kontaktformular.",
       contactForm: "Zum Kontaktformular",
@@ -137,6 +138,7 @@ export const translations = {
       title2: "Wir hören zu.",
       intro: "Ob du mitmachen, eine Idee teilen oder einfach Hallo sagen möchtest – schreib uns. Wir freuen uns, von dir zu hören.",
       email: "E-Mail",
+      contactPerson: "Ansprechpartner",
       facebookName: "ATIB Vorarlberg – Jugend",
     },
     form: {
@@ -220,6 +222,7 @@ export const translations = {
       phone: "Telefon",
       website: "Web sitesi",
       email: "E-posta",
+      contactPerson: "İrtibat kişisi",
       contact: "İletişim",
       contactPending: "Henüz iletişim bilgisi yok. Bize iletişim formundan yazabilirsin.",
       contactForm: "İletişim formuna git",
@@ -301,6 +304,7 @@ export const translations = {
       title2: "Biz buradayız.",
       intro: "Katılmak, bir fikir paylaşmak veya sadece merhaba demek istersen bize yaz. Senden haber almak bizi mutlu eder.",
       email: "E-posta",
+      contactPerson: "İrtibat kişisi",
       facebookName: "ATIB Vorarlberg – Jugend",
     },
     form: {
