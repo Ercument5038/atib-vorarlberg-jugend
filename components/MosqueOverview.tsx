@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, MapPin, Minus, Plus, RotateCcw, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowUpRight, Check, Clock, Copy as CopyIcon, Globe, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type * as ThreeTypes from "three";
 import { useSiteSettings } from "@/components/SiteSettings";
 import { districts, MAP_SIZE, mosques, type Mosque } from "@/lib/mosques";
@@ -23,8 +23,13 @@ type Relief = {
 // Straßen in Kartenkoordinaten: c = Klasse (1 Autobahn, 2 Hauptstraße, 3 sonstige), p = x,y,x,y,…
 type Roads = { roads: { c: number; p: number[] }[] };
 
+// Kamerawunsch von außen: eine Moschee, mehrere (Suchtreffer) oder null = Startansicht
+type MapView = { mosques: Mosque[] | null; at: number };
+
 type MapApi = {
   focus: (mosque: Mosque) => void;
+  fit: (list: Mosque[]) => void;
+  setFilter: (ids: Set<string> | null) => void;
   reset: () => void;
   zoom: (factor: number) => void;
   pan: (dx: number, dz: number) => void;
@@ -44,6 +49,44 @@ const decode = (value: string) => {
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return bytes;
 };
+
+// Suche: Groß/Klein, Akzente, Umlaute (ä = ae) und türkisches ı/İ egal
+const normalize = (value: string) =>
+  value
+    .toLocaleLowerCase("de")
+    .replace(/ß/g, "ss")
+    .replace(/ı/g, "i")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ae/g, "a")
+    .replace(/oe/g, "o")
+    .replace(/ue/g, "u")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const searchIndex = new Map(
+  mosques.map((m) => [
+    m.id,
+    normalize(
+      [
+        translations.de.mosques.namePrefix,
+        m.town,
+        m.address,
+        m.postalCode,
+        translations.de.mosques.districts[m.district],
+        translations.tr.mosques.districts[m.district],
+      ].join(" "),
+    ),
+  ]),
+);
+
+const findMatches = (query: string): Set<string> | null => {
+  const words = normalize(query).split(" ").filter(Boolean);
+  if (!words.length) return null;
+  return new Set(mosques.filter((m) => words.every((w) => searchIndex.get(m.id)?.includes(w))).map((m) => m.id));
+};
+
+const telHref = (phone: string) => `tel:${phone.replace(/\s/g, "")}`;
 
 const cssVar = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -72,6 +115,7 @@ function MosqueMap({
   selected,
   onSelect,
   focus,
+  matches,
 }: {
   copy: Copy;
   name: (mosque: Mosque) => string;
@@ -79,7 +123,8 @@ function MosqueMap({
   setActive: (id: string | null) => void;
   selected: Mosque | null;
   onSelect: (mosque: Mosque | null) => void;
-  focus: { mosque: Mosque; at: number } | null;
+  focus: MapView | null;
+  matches: Set<string> | null;
 }) {
   const { theme } = useSiteSettings();
   const host = useRef<HTMLDivElement>(null);
@@ -352,6 +397,9 @@ function MosqueMap({
         return { mosque, i, group, sprite, ring, s: 1, y0: p.y };
       });
 
+      // Suchfilter: ausgeblendete Moscheen sind unsichtbar und nicht anklickbar
+      let filter: Set<string> | null = null;
+
       // Farben aus den CSS-Variablen, damit Hell- und Dunkelmodus passen
       const recolor = () => {
         const tint = new THREE.Color();
@@ -413,7 +461,7 @@ function MosqueMap({
       };
       const pick = (e: PointerEvent): string | null => {
         setPointer(e.clientX, e.clientY);
-        const hit = ray.intersectObjects(markers.map((m) => m.sprite))[0];
+        const hit = ray.intersectObjects(markers.filter((m) => m.group.visible).map((m) => m.sprite))[0];
         return hit ? (hit.object.userData.id as string) : null;
       };
       let down: { x: number; y: number } | null = null;
@@ -550,6 +598,22 @@ function MosqueMap({
           const p = toWorld(mosque.x, mosque.y);
           flyTo(p.clone().add(new THREE.Vector3(90, 360, 380)), p);
         },
+        // Mehrere Treffer: Mitte anfliegen, Abstand nach Ausdehnung der Treffer
+        fit: (list) => {
+          if (!list.length) return;
+          const points = list.map((m) => toWorld(m.x, m.y));
+          const center = points.reduce((sum, p) => sum.add(p), new THREE.Vector3()).divideScalar(points.length);
+          const span = Math.max(
+            ...points.map((p) => Math.abs(p.x - center.x) * Math.max(1, 1 / camera.aspect)),
+            ...points.map((p) => Math.abs(p.z - center.z)),
+          );
+          const distance = Math.min(controls.maxDistance, Math.max(controls.minDistance + 200, span * 2.6 + 420));
+          const direction = new THREE.Vector3(90, 360, 380).normalize();
+          flyTo(center.clone().add(direction.multiplyScalar(distance)), center);
+        },
+        setFilter: (ids) => {
+          filter = ids;
+        },
         reset: () => flyTo(home(), HOME_TARGET.clone()),
         zoom: (factor) => {
           fly = null;
@@ -606,7 +670,7 @@ function MosqueMap({
         markers.forEach((m) => {
           const td = t - 1.1 - m.i * 0.1;
           const drop = back(td / 0.7);
-          m.group.visible = td > 0;
+          m.group.visible = td > 0 && (!filter || filter.has(m.mosque.id));
           m.group.position.y = m.y0 * land.scale.y + (td < 0.5 ? (1 - Math.min(1, td / 0.5)) * 120 : 0);
           const on = m.mosque.id === act;
           // Marker bleiben beim Reinzoomen etwa gleich groß auf dem Bildschirm
@@ -692,8 +756,16 @@ function MosqueMap({
   }, [theme, status]);
 
   useEffect(() => {
-    if (focus && status === "ready") api.current?.focus(focus.mosque);
+    const map = api.current;
+    if (!focus || status !== "ready" || !map) return;
+    if (!focus.mosques) map.reset();
+    else if (focus.mosques.length === 1) map.focus(focus.mosques[0]);
+    else map.fit(focus.mosques);
   }, [focus, status]);
+
+  useEffect(() => {
+    if (status === "ready") api.current?.setFilter(matches);
+  }, [matches, status]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const map = api.current;
@@ -753,8 +825,10 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
   const { language } = useSiteSettings();
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
+  const [copied, setCopied] = useState(false);
   const hours = mosque.openingHours?.[language];
   const fullAddress = `${mosque.address}, ${mosque.postalCode} ${mosque.town}`;
+  const hasContact = Boolean(mosque.phone || mosque.website);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -769,11 +843,24 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  const copyAddress = () => {
+    navigator.clipboard
+      ?.writeText(fullAddress)
+      .then(() => setCopied(true))
+      .catch(() => {});
+  };
+
   return (
     <div className="mosque-pop" role="dialog" aria-labelledby={`mosque-pop-${mosque.id}`}>
       <div className="mosque-pop-image">
         {mosque.image ? (
-          <Image src={mosque.image} alt={`${copy.photoAlt} ${name(mosque)}`} fill sizes="340px" />
+          <Image src={mosque.image} alt={`${copy.photoAlt} ${name(mosque)}`} fill sizes="360px" />
         ) : (
           <>
             <span className="mosque-pop-emoji" aria-hidden="true">{"\u{1F54C}"}</span>
@@ -791,40 +878,59 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
         </div>
         <dl>
           <div>
-            <dt>{copy.address}</dt>
-            <dd>{fullAddress}</dd>
+            <dt><MapPin size={18} aria-hidden="true" />{copy.address}</dt>
+            <dd className="mosque-pop-address">
+              <span>{fullAddress}</span>
+              <button type="button" className="mosque-pop-copy" onClick={copyAddress} aria-label={copy.copyAddress} title={copy.copyAddress}>
+                {copied ? <Check size={18} aria-hidden="true" /> : <CopyIcon size={18} aria-hidden="true" />}
+              </button>
+              <span className="mosque-pop-copied" role="status">{copied ? copy.copied : ""}</span>
+            </dd>
           </div>
           <div>
-            <dt>{copy.openingHours}</dt>
+            <dt><Clock size={18} aria-hidden="true" />{copy.openingHours}</dt>
             <dd className={hours ? undefined : "is-empty"}>{hours ?? copy.pending}</dd>
           </div>
-          {mosque.phone && (
-            <div>
-              <dt>{copy.phone}</dt>
-              <dd><a href={`tel:${mosque.phone.replace(/\s/g, "")}`}>{mosque.phone}</a></dd>
-            </div>
-          )}
-          {mosque.website && (
-            <div>
-              <dt>{copy.website}</dt>
-              <dd>
-                <a href={mosque.website} target="_blank" rel="noreferrer">
-                  {mosque.website.replace(/^https?:\/\//, "")}
-                  <span className="sr-only"> {copy.newTab}</span>
+          <div>
+            <dt><Phone size={18} aria-hidden="true" />{copy.contact}</dt>
+            {hasContact ? (
+              <dd className="mosque-pop-contact">
+                {mosque.phone && (
+                  <a href={telHref(mosque.phone)}>
+                    <span className="sr-only">{copy.phone}: </span>
+                    {mosque.phone}
+                  </a>
+                )}
+                {mosque.website && (
+                  <a href={mosque.website} target="_blank" rel="noreferrer">
+                    <Globe size={16} aria-hidden="true" />
+                    {mosque.website.replace(/^https?:\/\//, "")}
+                    <span className="sr-only"> {copy.newTab}</span>
+                  </a>
+                )}
+              </dd>
+            ) : (
+              <dd className="mosque-pop-contact">
+                <span className="is-empty">{copy.contactPending}</span>
+                <a href="#kontakt" onClick={onClose}>
+                  <MessageCircle size={16} aria-hidden="true" />
+                  {copy.contactForm}
                 </a>
               </dd>
-            </div>
-          )}
+            )}
+          </div>
         </dl>
-        <a
-          className="button button-primary mosque-route"
-          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${fullAddress}, ${copy.country}`)}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {copy.route} <ArrowUpRight size={18} aria-hidden="true" />
-          <span className="sr-only">{copy.newTab}</span>
-        </a>
+        <div className="mosque-pop-actions">
+          <a
+            className="button button-primary mosque-route"
+            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${fullAddress}, ${copy.country}`)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {copy.route} <ArrowUpRight size={18} aria-hidden="true" />
+            <span className="sr-only">{copy.newTab}</span>
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -835,24 +941,53 @@ export function MosqueOverview() {
   const copy = translations[language].mosques;
   const [active, setActive] = useState<string | null>(null);
   const [selected, setSelected] = useState<Mosque | null>(null);
-  const [focus, setFocus] = useState<{ mosque: Mosque; at: number } | null>(null);
-  const returnFocus = useRef<HTMLButtonElement | null>(null);
+  const [focus, setFocus] = useState<MapView | null>(null);
+  const [query, setQuery] = useState("");
+  const returnFocus = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const searched = useRef(false);
 
   const name = useCallback((mosque: Mosque) => `${copy.namePrefix} ${mosque.town}`, [copy.namePrefix]);
+  const matches = useMemo(() => findMatches(query), [query]);
+  // Treffer in Listenreihenfolge (nach Bezirk)
+  const results = useMemo(
+    () => districts.flatMap((d) => mosques.filter((m) => m.district === d && (!matches || matches.has(m.id)))),
+    [matches],
+  );
 
   const select = useCallback((mosque: Mosque | null) => {
     setSelected(mosque);
-    if (mosque) setFocus({ mosque, at: Date.now() });
+    if (mosque) setFocus({ mosques: [mosque], at: Date.now() });
     else {
-      const target = returnFocus.current ?? stageRef.current?.querySelector<HTMLButtonElement>(".mosque-gl");
+      const target = returnFocus.current ?? stageRef.current?.querySelector<HTMLElement>(".mosque-gl");
       target?.focus({ preventScroll: true });
       returnFocus.current = null;
     }
   }, []);
 
-  const showOnMap = (mosque: Mosque, button: HTMLButtonElement) => {
-    returnFocus.current = button;
+  // Karte folgt der Suche mit kurzer Verzögerung, damit sie beim Tippen nicht springt
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (matches && matches.size) {
+        searched.current = true;
+        setFocus({ mosques: mosques.filter((m) => matches.has(m.id)), at: Date.now() });
+      } else if (!matches && searched.current) {
+        searched.current = false;
+        setFocus({ mosques: null, at: Date.now() });
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [matches]);
+
+  const onSearch = (value: string) => {
+    setQuery(value);
+    const next = findMatches(value);
+    // Offene Infokarte schließen, wenn die Moschee herausgefiltert wird
+    if (selected && next && !next.has(selected.id)) setSelected(null);
+  };
+
+  const showOnMap = (mosque: Mosque, origin: HTMLElement) => {
+    returnFocus.current = origin;
     setActive(mosque.id);
     select(mosque);
     const stage = stageRef.current;
@@ -860,6 +995,23 @@ export function MosqueOverview() {
     const rect = stage.getBoundingClientRect();
     if (rect.top < 80 || rect.bottom > window.innerHeight) stage.scrollIntoView({ behavior: "smooth", block: "center" });
   };
+
+  const onSearchKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && matches && results[0]) {
+      e.preventDefault();
+      showOnMap(results[0], e.currentTarget);
+    } else if (e.key === "Escape" && query) {
+      e.preventDefault();
+      e.stopPropagation();
+      onSearch("");
+    }
+  };
+
+  const status = !matches
+    ? ""
+    : results.length
+      ? `${copy.searchCount.replace("{n}", String(results.length)).replace("{total}", String(mosques.length))} · ${copy.searchEnter}`
+      : copy.searchNone;
 
   return (
     <section className="mosque-overview" id="moscheen" aria-labelledby="mosques-title">
@@ -880,7 +1032,7 @@ export function MosqueOverview() {
 
       <div className="container mosque-layout">
         <div className="mosque-map-col" ref={stageRef}>
-          <MosqueMap copy={copy} name={name} active={active} setActive={setActive} selected={selected} onSelect={select} focus={focus} />
+          <MosqueMap copy={copy} name={name} active={active} setActive={setActive} selected={selected} onSelect={select} focus={focus} matches={matches} />
           <div className="mosque-map-footer">
             <p className="mosque-controls mosque-controls-pointer">{copy.controls}</p>
             <p className="mosque-controls mosque-controls-touch">{copy.controlsTouch}</p>
@@ -892,10 +1044,33 @@ export function MosqueOverview() {
           <div className="mosque-list-head">
             <h3>{copy.listTitle}</h3>
             <p>{copy.listIntro}</p>
+            <div className="mosque-search" role="search">
+              <label htmlFor="mosque-search" className="sr-only">{copy.searchLabel}</label>
+              <Search className="mosque-search-icon" size={20} aria-hidden="true" />
+              <input
+                id="mosque-search"
+                type="search"
+                value={query}
+                placeholder={copy.searchPlaceholder}
+                autoComplete="off"
+                spellCheck={false}
+                enterKeyHint="search"
+                aria-describedby="mosque-search-status"
+                onChange={(e) => onSearch(e.target.value)}
+                onKeyDown={onSearchKey}
+              />
+              {query && (
+                <button type="button" className="mosque-search-clear" onClick={() => onSearch("")} aria-label={copy.searchClear} title={copy.searchClear}>
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+            <p id="mosque-search-status" className={`mosque-search-status${matches && !results.length ? " is-empty" : ""}`} role="status">{status}</p>
           </div>
           <div className="mosque-list">
             {districts.map((district) => {
-              const items = mosques.filter((m) => m.district === district);
+              const items = results.filter((m) => m.district === district);
+              if (!items.length) return null;
               return (
                 <div className="mosque-group" key={district}>
                   <h4><span>{copy.districts[district]}</span><span>{items.length}</span></h4>
