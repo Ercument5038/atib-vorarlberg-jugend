@@ -481,26 +481,20 @@ section[id] {
 .hero-stats {
   display: grid;
   grid-template-columns: 1.25fr repeat(3, 1fr);
-  border-top: 1px solid var(--line);
-  padding-top: 32px;
+  gap: 16px;
   padding-bottom: 48px;
 }
 
-.stats-intro,
-.stat {
-  min-height: 100px;
-  padding: 0 30px;
-  border-left: 1px solid var(--line);
-}
-
 .stats-intro {
-  padding-left: 0;
-  border-left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 30px;
 }
 
 .stats-intro > span {
   color: var(--primary-dark);
-  font-size: 0.66rem;
+  font-size: 0.8rem;
   font-weight: 650;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -509,34 +503,54 @@ section[id] {
 .stats-intro p {
   margin-top: 12px;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.25rem;
   letter-spacing: -0.035em;
   line-height: 1.45;
 }
 
 .stat {
   display: flex;
-  align-items: flex-end;
+  min-height: 184px;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
+  gap: 24px;
+  padding: 26px 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper-deep);
 }
 
 .stat strong {
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 4vw, 4.3rem);
+  font-size: clamp(2.8rem, 3.6vw, 3.7rem);
   font-weight: 450;
   letter-spacing: -0.08em;
   line-height: 0.9;
 }
 
 .stat strong span {
-  color: var(--primary);
+  color: var(--primary-dark);
+  font-size: 0.32em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.stat strong .stat-prefix {
+  margin-right: 0.45em;
 }
 
 .stat p {
   color: var(--ink-soft);
-  font-size: 0.66rem;
-  line-height: 1.55;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.stat p span {
+  color: var(--primary-dark);
+  font-weight: 700;
 }
 
 .values-band {
@@ -1574,30 +1588,26 @@ section[id] {
 
   .hero-stats {
     grid-template-columns: 1fr;
-    padding-top: 0;
+    gap: 12px;
     padding-bottom: 36px;
   }
 
   .stat {
-    min-height: 94px;
+    display: grid;
+    min-height: 0;
+    grid-template-columns: 100px 1fr;
     align-items: center;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--line);
-    border-left: 0;
+    gap: 20px;
+    padding: 22px;
+    border-radius: 14px;
   }
 
   .stat strong {
-    font-size: 3.3rem;
+    font-size: 2.9rem;
   }
 
   .stat p {
-    min-width: 128px;
-    font-size: 0.65rem;
-    text-align: right;
-  }
-
-  .stat p br {
-    display: none;
+    font-size: 1.12rem;
   }
 
   .values-band > div {

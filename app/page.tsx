@@ -66,18 +66,16 @@ export default function Home() {
               <span>{copy.hero.season}</span>
               <p>{copy.hero.seasonText[0]}<br />{copy.hero.seasonText[1]}</p>
             </div>
-            <div className="stat">
-              <strong>200<span>+</span></strong>
-              <p>{copy.hero.stats[0][0]}<br />{copy.hero.stats[0][1]}</p>
-            </div>
-            <div className="stat">
-              <strong>21<span>.</span></strong>
-              <p>{copy.hero.stats[1][0]}<br />{copy.hero.stats[1][1]}</p>
-            </div>
-            <div className="stat">
-              <strong>100<span>+</span></strong>
-              <p>{copy.hero.stats[2][0]}<br />{copy.hero.stats[2][1]}</p>
-            </div>
+            {copy.hero.stats.map((stat) => {
+              const [beforeHighlight, afterHighlight] = stat.label.split(stat.highlight);
+
+              return (
+                <div className="stat" key={stat.label}>
+                  <strong>{stat.prefix && <span className="stat-prefix">{stat.prefix}</span>}{stat.value}{stat.suffix && <span className="stat-suffix">{stat.suffix}</span>}</strong>
+                  <p>{beforeHighlight}<span>{stat.highlight}</span>{afterHighlight}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
