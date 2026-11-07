@@ -9,6 +9,10 @@
   --line: rgba(18, 44, 49, 0.18);
   --dark-surface: #122c31;
   --header-bg: rgba(246, 245, 240, 0.93);
+  --radius-card: 16px;
+  --radius-control: 8px;
+  --card-padding: 28px;
+  --control-height: 52px;
   --font-body: var(--font-inter), sans-serif;
   --font-display: var(--font-geist), sans-serif;
   color-scheme: light;
@@ -143,14 +147,14 @@ section[id] {
 
 .button {
   display: inline-flex;
-  min-height: 50px;
+  min-height: var(--control-height);
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  padding: 13px 21px;
+  gap: 16px;
+  padding: 14px 22px;
   border: 0;
-  border-radius: 2px;
-  font-size: 0.83rem;
+  border-radius: var(--radius-control);
+  font-size: 0.88rem;
   font-weight: 600;
   line-height: 1.3;
   cursor: pointer;
@@ -168,6 +172,7 @@ section[id] {
 
 .button-primary:hover {
   background: var(--primary-dark);
+  color: var(--paper);
 }
 
 .button-dark {
@@ -177,6 +182,7 @@ section[id] {
 
 .button-dark:hover {
   background: var(--primary-dark);
+  color: var(--paper);
 }
 
 .text-link {
@@ -308,19 +314,21 @@ section[id] {
 
 .header-cta {
   display: inline-flex;
-  min-height: 40px;
+  min-height: 44px;
   align-items: center;
-  gap: 15px;
-  padding: 9px 14px;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius-control);
   background: var(--ink);
   color: var(--white);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  transition: background-color 180ms ease;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 .header-cta:hover {
-  background: var(--primary);
+  background: var(--primary-dark);
+  color: var(--paper);
 }
 
 .menu-toggle {
@@ -515,9 +523,9 @@ section[id] {
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  padding: 26px 28px;
+  padding: var(--card-padding);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   background: var(--paper-deep);
 }
 
@@ -1074,7 +1082,9 @@ section[id] {
 }
 
 .contact-form {
-  padding: 40px;
+  padding: var(--card-padding);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
   background: var(--paper);
   color: var(--ink);
 }
@@ -1093,7 +1103,7 @@ section[id] {
 .contact-form label > span {
   display: block;
   margin-bottom: 8px;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 650;
 }
 
@@ -1101,31 +1111,30 @@ section[id] {
 .contact-form select,
 .contact-form textarea {
   width: 100%;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
   outline: 0;
-  background: transparent;
+  background: var(--paper-deep);
   color: var(--ink);
-  font-size: 0.82rem;
-  transition: border-color 180ms ease;
+  font-size: 0.95rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .contact-form input,
 .contact-form select {
-  height: 45px;
+  height: var(--control-height);
 }
 
 /* Chrome malt native Selects trotz transparentem Hintergrund weiß;
    explizite Theme-Farben verhindern das. */
 .contact-form select {
-  background-color: var(--paper);
+  background-color: var(--paper-deep);
   color: var(--ink);
 }
 
 .contact-form textarea {
   min-height: 120px;
-  padding: 12px 0;
   resize: vertical;
 }
 
@@ -1133,7 +1142,7 @@ section[id] {
 .contact-form select:focus,
 .contact-form textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 1px 0 var(--primary);
+  box-shadow: 0 0 0 3px var(--line);
 }
 
 .contact-form input::placeholder,
@@ -1170,6 +1179,26 @@ section[id] {
 
 .form-status:empty {
   margin-top: 0;
+}
+
+.hero-image-wrap,
+.portrait-frame,
+.activity-image,
+.connection-photo,
+.team-photo,
+.mosque-stage,
+.mosque-pop,
+.mosque-group button {
+  border-radius: var(--radius-card);
+}
+
+.foreword-text p,
+.activities-heading p,
+.activity-copy > p,
+.connections-copy > p,
+.team-heading p,
+.contact-copy > p {
+  line-height: 1.8;
 }
 
 .site-footer {
@@ -1287,7 +1316,7 @@ section[id] {
   }
 
   .contact-form {
-    padding: 30px;
+    padding: var(--card-padding);
   }
 
   .form-footer {
@@ -1492,7 +1521,7 @@ section[id] {
   }
 
   .contact-form {
-    padding: 38px;
+    padding: var(--card-padding);
   }
 
   .form-footer {
@@ -1599,7 +1628,7 @@ section[id] {
     align-items: center;
     gap: 20px;
     padding: 22px;
-    border-radius: 14px;
+    border-radius: var(--radius-card);
   }
 
   .stat strong {
@@ -1769,7 +1798,7 @@ section[id] {
 
   .contact-form {
     margin-inline: -5px;
-    padding: 25px 20px;
+    padding: var(--card-padding);
   }
 
   .form-row {
@@ -2460,10 +2489,10 @@ body {
 
 .mosque-search input {
   width: 100%;
-  min-height: 52px;
+  min-height: var(--control-height);
   padding: 12px 48px 12px 46px;
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius-control);
   background: var(--paper);
   color: var(--ink);
   font-size: 1rem;
