@@ -9,6 +9,7 @@
   --line: rgba(18, 44, 49, 0.18);
   --dark-surface: #122c31;
   --header-bg: rgba(246, 245, 240, 0.93);
+  --focus-ring: rgba(27, 151, 171, 0.18);
   --radius-card: 16px;
   --radius-control: 8px;
   --card-padding: 28px;
@@ -28,6 +29,7 @@
   --line: rgba(224, 240, 239, 0.2);
   --dark-surface: #091a1e;
   --header-bg: rgba(13, 32, 37, 0.94);
+  --focus-ring: rgba(53, 169, 188, 0.24);
   color-scheme: dark;
 }
 
@@ -1126,13 +1128,6 @@ section[id] {
   height: var(--control-height);
 }
 
-/* Chrome malt native Selects trotz transparentem Hintergrund weiß;
-   explizite Theme-Farben verhindern das. */
-.contact-form select {
-  background-color: var(--paper-deep);
-  color: var(--ink);
-}
-
 .contact-form textarea {
   min-height: 120px;
   resize: vertical;
@@ -1142,7 +1137,7 @@ section[id] {
 .contact-form select:focus,
 .contact-form textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--line);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .contact-form input::placeholder,
@@ -1190,6 +1185,21 @@ section[id] {
 .mosque-pop,
 .mosque-group button {
   border-radius: var(--radius-card);
+}
+
+.brand img,
+.footer-brand img,
+.menu-toggle,
+.language-switch,
+.language-switch button,
+.theme-toggle,
+.mobile-theme-toggle,
+.connection-tags span,
+.team-photo small,
+.mosque-tip,
+.mosque-pop-note,
+.mosque-zoom button {
+  border-radius: var(--radius-control);
 }
 
 .foreword-text p,
@@ -2512,7 +2522,7 @@ body {
 .mosque-search input:focus {
   border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 3px var(--mosque-tint);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .mosque-search-icon {
