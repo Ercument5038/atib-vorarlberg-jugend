@@ -2286,7 +2286,7 @@ body {
 .mosque-pop-image {
   position: relative;
   display: grid;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 2 / 1;
   place-items: center;
   overflow: hidden;
   background: linear-gradient(135deg, var(--mosque-g1), var(--mosque-g3));
@@ -2358,6 +2358,9 @@ body {
 }
 
 .mosque-pop dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--primary-dark);
   font-size: 1rem;
   font-weight: 650;
@@ -2365,6 +2368,7 @@ body {
 
 .mosque-pop dd {
   margin: 0;
+  padding-left: 26px;
 }
 
 .mosque-pop dd.is-empty {
@@ -2376,9 +2380,140 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+.mosque-pop-address {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 6px;
+}
+
+.mosque-pop-copy {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  margin-top: -6px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--primary-dark);
+  cursor: pointer;
+}
+
+.mosque-pop-copy:hover {
+  background: var(--mosque-tint);
+}
+
+.mosque-pop-copied {
+  grid-column: 1 / -1;
+  color: var(--primary-dark);
+  font-size: 1rem;
+}
+
+.mosque-pop-copied:empty {
+  display: none;
+}
+
+.mosque-pop-contact {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+
+.mosque-pop-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+
+.mosque-pop-contact .is-empty {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.mosque-pop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .mosque-route {
-  justify-self: start;
   gap: 12px;
+}
+
+/* Suchfeld über der Moscheeliste */
+.mosque-search {
+  position: relative;
+  margin-top: 8px;
+}
+
+.mosque-search input {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 48px 12px 46px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1rem;
+  appearance: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.mosque-search input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.8;
+}
+
+.mosque-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.mosque-search input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--mosque-tint);
+}
+
+.mosque-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  color: var(--primary);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.mosque-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.mosque-search-clear:hover {
+  background: var(--mosque-tint);
+  color: var(--ink);
+}
+
+.mosque-list-head .mosque-search-status {
+  min-height: 1.6em;
+  color: var(--primary-dark);
+  font-size: 1rem;
+}
+
+.mosque-list-head .mosque-search-status.is-empty {
+  color: var(--ink-soft);
 }
 
 .mosque-map-footer {
@@ -2537,7 +2672,7 @@ body {
     bottom: 12px;
     left: 12px;
     width: auto;
-    max-height: 62%;
+    max-height: 66%;
   }
 
   .mosque-pop-image {
@@ -2546,6 +2681,16 @@ body {
 
   .mosque-pop-emoji {
     font-size: 2.5rem;
+  }
+
+  /* Ohne Foto am Handy nur ein schmaler Kopf, damit mehr Infos sichtbar sind */
+  .mosque-pop-image:not(:has(img)) {
+    aspect-ratio: auto;
+    height: 64px;
+  }
+
+  .mosque-pop-image:not(:has(img)) .mosque-pop-emoji {
+    font-size: 2rem;
   }
 
   .mosque-pop-body {
