@@ -2996,3 +2996,87 @@ body {
     display: none;
   }
 }
+
+/* Handy: Bezirke der Moscheeliste aufklappbar */
+.mosque-group button.mosque-group-toggle,
+.mosque-group button.mosque-group-toggle:hover {
+  transform: none;
+}
+
+.mosque-group button.mosque-group-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mosque-group-toggle > span:first-child {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.mosque-group-count {
+  display: grid;
+  min-width: 30px;
+  height: 30px;
+  place-items: center;
+  padding: 0 8px;
+  border-radius: 15px;
+  background: var(--mosque-tint);
+  color: var(--primary-dark);
+}
+
+.mosque-group-chevron {
+  color: var(--primary);
+  transition: transform 200ms ease;
+}
+
+.mosque-group.is-open .mosque-group-chevron {
+  transform: rotate(180deg);
+}
+
+.mosque-group.is-collapsible h4 {
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+.mosque-group.is-collapsible.is-open h4 {
+  margin-bottom: 10px;
+}
+
+.mosque-group.is-collapsible:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .mosque-list {
+    gap: 0;
+  }
+
+  .mosque-group:not(.is-collapsible) + .mosque-group:not(.is-collapsible) {
+    margin-top: 20px;
+  }
+
+  .mosque-group.is-collapsible.is-open ul {
+    padding-bottom: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mosque-group-chevron {
+    transition: none;
+  }
+}
+
+.mosque-group ul[hidden] {
+  display: none;
+}

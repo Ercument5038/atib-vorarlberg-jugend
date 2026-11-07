@@ -1,14 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Check, Clock, Copy as CopyIcon, Globe, Mail, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDown, ArrowUpRight, Check, ChevronDown, Clock, Copy as CopyIcon, Globe, Mail, MapPin, MessageCircle, Minus, Phone, Plus, RotateCcw, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type * as ThreeTypes from "three";
 import { useSiteSettings } from "@/components/SiteSettings";
-import { districts, MAP_SIZE, mosques, type Mosque } from "@/lib/mosques";
+import { districts, MAP_SIZE, mosques, type DistrictKey, type Mosque } from "@/lib/mosques";
 import { translations } from "@/lib/translations";
 
 type Copy = (typeof translations)["de" | "tr"]["mosques"];
+
+// Handy-Ansicht (gleiche Grenze wie in globals.css): Bezirke in der Liste sind dort aufklappbar
+const PHONE_QUERY = "(max-width: 640px)";
+const subscribePhone = (onChange: () => void) => {
+  const media = window.matchMedia(PHONE_QUERY);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+};
+const usePhone = () =>
+  useSyncExternalStore(
+    subscribePhone,
+    () => window.matchMedia(PHONE_QUERY).matches,
+    () => false,
+  );
 
 type Relief = {
   nx: number;
@@ -999,9 +1013,23 @@ export function MosqueOverview() {
     [matches],
   );
 
+  const phone = usePhone();
+  const [openDistricts, setOpenDistricts] = useState<Set<DistrictKey>>(() => new Set());
+  const toggleDistrict = (district: DistrictKey) =>
+    setOpenDistricts((prev) => {
+      const next = new Set(prev);
+      if (next.has(district)) next.delete(district);
+      else next.add(district);
+      return next;
+    });
+
   const select = useCallback((mosque: Mosque | null) => {
     setSelected(mosque);
-    if (mosque) setFocus({ mosques: [mosque], at: Date.now() });
+    if (mosque) {
+      setFocus({ mosques: [mosque], at: Date.now() });
+      // Am Handy den Bezirk der gewählten Moschee in der Liste aufklappen
+      setOpenDistricts((prev) => (prev.has(mosque.district) ? prev : new Set(prev).add(mosque.district)));
+    }
     else {
       const target = returnFocus.current ?? stageRef.current?.querySelector<HTMLElement>(".mosque-gl");
       target?.focus({ preventScroll: true });
@@ -1115,10 +1143,29 @@ export function MosqueOverview() {
             {districts.map((district) => {
               const items = results.filter((m) => m.district === district);
               if (!items.length) return null;
+              // Bei aktiver Suche sind die Treffer immer sichtbar
+              const collapsible = phone && !matches;
+              const expanded = !collapsible || openDistricts.has(district);
               return (
-                <div className="mosque-group" key={district}>
-                  <h4><span>{copy.districts[district]}</span><span>{items.length}</span></h4>
-                  <ul>
+                <div className={`mosque-group${collapsible ? " is-collapsible" : ""}${expanded ? " is-open" : ""}`} key={district}>
+                  {collapsible ? (
+                    <h4>
+                      <button
+                        type="button"
+                        className="mosque-group-toggle"
+                        aria-expanded={expanded}
+                        aria-controls={`mosque-group-${district}`}
+                        onClick={() => toggleDistrict(district)}
+                      >
+                        <span>{copy.districts[district]}</span>
+                        <span className="mosque-group-count">{items.length}</span>
+                        <ChevronDown className="mosque-group-chevron" size={20} aria-hidden="true" />
+                      </button>
+                    </h4>
+                  ) : (
+                    <h4><span>{copy.districts[district]}</span><span>{items.length}</span></h4>
+                  )}
+                  <ul id={`mosque-group-${district}`} hidden={!expanded}>
                     {items.map((mosque) => (
                       <li key={mosque.id}>
                         <button
