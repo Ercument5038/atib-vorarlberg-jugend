@@ -68,15 +68,15 @@ export default function Home() {
             </div>
             <div className="stat">
               <strong>200<span>+</span></strong>
-              <p>{copy.hero.stats[0][0]}<br />{copy.hero.stats[0][1]}</p>
+              <p>{copy.hero.stats[0][0]}<br />{" "}{copy.hero.stats[0][1]}</p>
             </div>
             <div className="stat">
               <strong>21<span>.</span></strong>
-              <p>{copy.hero.stats[1][0]}<br />{copy.hero.stats[1][1]}</p>
+              <p>{copy.hero.stats[1][0]}<br />{" "}{copy.hero.stats[1][1]}</p>
             </div>
             <div className="stat">
               <strong>100<span>+</span></strong>
-              <p>{copy.hero.stats[2][0]}<br />{copy.hero.stats[2][1]}</p>
+              <p>{copy.hero.stats[2][0]}<br />{" "}{copy.hero.stats[2][1]}</p>
             </div>
           </div>
         </section>

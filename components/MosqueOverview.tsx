@@ -459,10 +459,28 @@ function MosqueMap({
         pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
         ray.setFromCamera(pointer, camera);
       };
+      const screenPoint = new THREE.Vector3();
       const pick = (e: PointerEvent): string | null => {
         setPointer(e.clientX, e.clientY);
-        const hit = ray.intersectObjects(markers.filter((m) => m.group.visible).map((m) => m.sprite))[0];
-        return hit ? (hit.object.userData.id as string) : null;
+        const visible = markers.filter((m) => m.group.visible);
+        const hit = ray.intersectObjects(visible.map((m) => m.sprite))[0];
+        if (hit) return hit.object.userData.id as string;
+        if (e.pointerType === "mouse") return null;
+        // Finger sind ungenau: nächste Moschee im Umkreis von 30 px nehmen
+        const rect = canvas.getBoundingClientRect();
+        let best: string | null = null;
+        let bestDistance = 30;
+        visible.forEach((m) => {
+          m.sprite.getWorldPosition(screenPoint).project(camera);
+          const x = rect.left + ((screenPoint.x + 1) / 2) * rect.width;
+          const y = rect.top + ((1 - screenPoint.y) / 2) * rect.height;
+          const distance = Math.hypot(x - e.clientX, y - e.clientY);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            best = m.mosque.id;
+          }
+        });
+        return best;
       };
       let down: { x: number; y: number } | null = null;
       let grabbing = false;
@@ -479,12 +497,23 @@ function MosqueMap({
           canvas.style.cursor = "grabbing";
         }
       };
+      let lastTap: { t: number; x: number; y: number } | null = null;
+      let lastTouchZoom = 0;
       const onUp = (e: PointerEvent) => {
-        if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 6) {
+        if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < (e.pointerType === "mouse" ? 6 : 12)) {
           const id = pick(e);
           setActiveRef.current(id);
           const mosque = mosques.find((m) => m.id === id);
           if (mosque) selectRef.current(mosque);
+          else if (e.pointerType === "touch") {
+            // Doppelt tippen zoomt hinein
+            const now = performance.now();
+            if (lastTap && now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40) {
+              queueZoom(e.clientX, e.clientY, -0.7);
+              lastTap = null;
+              lastTouchZoom = now;
+            } else lastTap = { t: now, x: e.clientX, y: e.clientY };
+          }
         }
         down = null;
       };
@@ -543,6 +572,7 @@ function MosqueMap({
       };
       const onDoubleClick = (e: MouseEvent) => {
         e.preventDefault();
+        if (performance.now() - lastTouchZoom < 600) return;
         queueZoom(e.clientX, e.clientY, e.shiftKey ? 0.7 : -0.7);
       };
       const onContextMenu = (e: Event) => e.preventDefault();
@@ -824,6 +854,7 @@ function MosqueMap({
 function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Copy; name: (mosque: Mosque) => string; onClose: () => void }) {
   const { language } = useSiteSettings();
   const closeRef = useRef<HTMLButtonElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const [copied, setCopied] = useState(false);
   const hours = mosque.openingHours?.[language];
@@ -836,6 +867,12 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
 
   useEffect(() => {
     closeRef.current?.focus({ preventScroll: true });
+    // Am Handy steht die Infokarte unter der Karte: sanft ins Bild holen
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      const frame = window.requestAnimationFrame(() => popRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+      const cancel = () => window.cancelAnimationFrame(frame);
+      window.addEventListener("pagehide", cancel, { once: true });
+    }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onCloseRef.current();
     };
@@ -857,7 +894,7 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
   };
 
   return (
-    <div className="mosque-pop" role="dialog" aria-labelledby={`mosque-pop-${mosque.id}`}>
+    <div ref={popRef} className="mosque-pop" role="dialog" aria-labelledby={`mosque-pop-${mosque.id}`}>
       <div className="mosque-pop-image">
         {mosque.image ? (
           <Image src={mosque.image} alt={`${copy.photoAlt} ${name(mosque)}`} fill sizes="360px" />
