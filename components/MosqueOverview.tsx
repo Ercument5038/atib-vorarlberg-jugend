@@ -869,7 +869,7 @@ function MosquePopup({ mosque, copy, name, onClose }: { mosque: Mosque; copy: Co
     closeRef.current?.focus({ preventScroll: true });
     // Am Handy steht die Infokarte unter der Karte: sanft ins Bild holen
     if (window.matchMedia("(max-width: 640px)").matches) {
-      const frame = window.requestAnimationFrame(() => popRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+      const frame = window.requestAnimationFrame(() => popRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }));
       const cancel = () => window.cancelAnimationFrame(frame);
       window.addEventListener("pagehide", cancel, { once: true });
     }
