@@ -48,6 +48,13 @@ npm run start          # Produktions-Build mit dem Next.js-Server ausliefern
 
 Aktuell sind `/` und die interne Not-found-Seite statisch vorgerendert. Daraus folgt nicht, dass das Projekt als reiner Datei-Export konfiguriert ist: `next.config.ts` enthält kein `output: "export"`, und der dokumentierte Produktionsmodus ist `next start`.
 
+## GitHub- und Branch-Workflow
+
+- Die GitHub CLI ist lokal unter `.tools/bin/gh` verfügbar. Für Pull Requests, Issues und andere GitHub-Operationen diesen Pfad verwenden, wenn `gh` nicht global im `PATH` liegt. Zugangsdaten oder Tokens niemals in Projektdateien ablegen.
+- Alle neuen Features werden in einem eigenen Feature-Branch entwickelt, nicht direkt auf `main`.
+- Vor einem Pull Request müssen die vorgesehenen Prüfungen erfolgreich sein und der Benutzer muss die lokale Vorschau beziehungsweise den vorgeschlagenen Stand ausdrücklich freigeben.
+- Erst nach diesem ausdrücklichen Go wird ein Pull Request vom Feature-Branch auf `main` erstellt. Wenn auch dort keine Konflikte oder sonstigen Probleme auftreten, darf der Pull Request mit derselben Freigabe gemergt werden. Ohne dieses Go weder einen Pull Request erstellen noch mergen.
+
 ## Codeorganisation
 
 ### `app/`
