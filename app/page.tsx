@@ -154,7 +154,7 @@ export default function Home() {
                   <span>{copy.connections.imageLabels[0]}</span>
                 </Reveal>
                 <Reveal className="connection-photo">
-                  <Image src="/images/messe.jpg" alt={copy.connections.imageAlts[1]} fill sizes="(max-width: 800px) 35vw, 18vw" />
+                  <Image src="/images/messe.png" alt={copy.connections.imageAlts[1]} fill sizes="(max-width: 800px) 35vw, 18vw" />
                   <span>{copy.connections.imageLabels[1]}</span>
                 </Reveal>
                 <Reveal className="connection-photo">
